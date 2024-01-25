@@ -35,7 +35,10 @@ def gzip_predict(request, k):
     predict_class = max(set(top_k_class), key=top_k_class.count)
     end = time.time()
 
-    return predict_class, end-start
+    response = {"class": predict_class,
+                "time": end-start}
+
+    return response
 
 
 def bert_predict(request):
