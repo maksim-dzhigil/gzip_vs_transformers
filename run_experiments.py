@@ -1,5 +1,5 @@
 import argparse
-from model_predict import gzip_predict
+from model_predict import gzip_predict, make_gzip_report, make_bert_report
 from sklearn.metrics import f1_score
 from tqdm import tqdm
 import numpy as np
@@ -37,51 +37,6 @@ def get_single_request(file_name):
     return request
 
 
-def run_gzip_experiments(filenames, k):
-
-    times = []
-    preds = []
-    for pos_file in tqdm(filenames):
-        with open(pos_file, "r") as file:
-            request = file.readlines()
-        pred, time = gzip_predict(request, k)
-        
-        preds.append(pred)
-        times.append(time)
-
-    return np.array(preds), np.array(times)
-
-
-def get_gzip_experiments_results(args):
-    pos_filenames = sorted(os.listdir(os.path.join(args.dir_name, "pos_reviews")))
-    neg_filenames = sorted(os.listdir(os.path.join(args.dir_name, "neg_reviews")))
-
-    pos_filenames = [os.path.join(args.dir_name, "pos_reviews", filename) for filename in pos_filenames]
-    neg_filenames = [os.path.join(args.dir_name, "neg_reviews", filename) for filename in neg_filenames]
-
-    pos_preds, pos_times = run_gzip_experiments(pos_filenames, args.k_neighbours)
-    neg_preds, neg_times = run_gzip_experiments(neg_filenames, args.k_neighbours)
-
-    return {"pred": pos_preds, "time": pos_times}, {"pred": neg_preds, "time": neg_times}
-
-
-def make_gzip_report(args):
-    pos_res, neg_res = get_gzip_experiments_results(args)
-
-    report = {}
-    time = np.concatenate((pos_res["time"], neg_res["time"]))
-    report["time_ndarray"] = time
-    report["avg_time"] = np.mean(time)
-
-    labels = np.concatenate((np.ones(pos_res["pred"].shape[0]), np.zeros(neg_res["pred"].shape[0])))
-    preds = np.concatenate((pos_res["pred"], neg_res["pred"]))
-
-    f1 = f1_score(labels, preds)
-    report["f1_score"] = f1
-
-    return report
-
-
 def clear_request_data():
     for filename in os.listdir(os.environ["POSITIVE_DIR"]):
         os.remove(os.path.join(os.environ["POSITIVE_DIR"], filename))
@@ -109,6 +64,10 @@ def main():
     print("***********************************")
     print(f"GZIP | avg time: {gzip_report['avg_time']:.2f} | f1: {gzip_report['f1_score']:.5f}")
     print("***********************************")
+
+    bert_report, bert_model = make_bert_report()
+    
+
 
 
 if __name__ == "__main__":
