@@ -7,9 +7,10 @@ import os
 from create_request_data import generate_test_data
 
 
-os.environ["POSITIVE_DIR"] = "request_data/pos_reviews"
-os.environ["NEGATIVE_DIR"] = "request_data/neg_reviews"
-os.environ["IMDB_PATH"] = "data/IMDB.csv"
+root = os.path.dirname(os.path.abspath(__file__))
+os.environ["POSITIVE_DIR"] = os.path.join(root, "request_data/pos_reviews")
+os.environ["NEGATIVE_DIR"] = os.path.join(root,"request_data/neg_reviews")
+os.environ["IMDB_PATH"] = os.path.join(root,"data/IMDB.csv")
 
 
 def argument_parser():
