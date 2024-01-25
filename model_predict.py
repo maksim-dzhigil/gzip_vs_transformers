@@ -30,7 +30,7 @@ def run_gzip_experiments(filenames, k, pbar_name):
 
     times = []
     preds = []
-    for pos_file in tqdm(filenames, decs=pbar_name):
+    for pos_file in tqdm(filenames, desc=pbar_name):
         with open(pos_file, "r") as file:
             request = file.readlines()
         pred, time = gzip_predict(request, k)
@@ -72,7 +72,7 @@ def make_gzip_report(args):
 
 
 def gzip_predict(request, k):
-    texts, labels = load_imdb_data(os.environ["IMDB_PATH"])
+    texts, labels = load_imdb_data()
 
     x1 = request[0]
     distances_from_x1 = []
@@ -133,7 +133,7 @@ def train_step_bert(model, data_loader, optimizer, scheduler, device, epoch):
     model.train()
 
     start = time.time()
-    for batch in tqdm(data_loader, decs=f"BERT | {epoch} epoch"):
+    for batch in tqdm(data_loader, desc=f"BERT | {epoch} epoch"):
         optimizer.zero_grad()
         input_ids = batch['input_ids'].to(device)
         attention_mask = batch['attention_mask'].to(device)
@@ -163,7 +163,7 @@ def evaluate_step_bert(model, data_loader, device):
     return f1_score(actual_labels, predictions)
 
 
-def train_bert(bert_model_name='bert-base-uncased', num_epochs=1, num_classes=2, learning_rate=2e-5, batch_size=128):
+def train_bert(bert_model_name='bert-base-uncased', num_epochs=1, num_classes=2, learning_rate=2e-5, batch_size=16):
     texts, labels = load_imdb_data()
     train_texts, val_texts, train_labels, val_labels = train_test_split(texts, labels, test_size=0.2, random_state=42)
 
@@ -185,7 +185,7 @@ def train_bert(bert_model_name='bert-base-uncased', num_epochs=1, num_classes=2,
     start = time.time()
     step_times = []
     f1_scores = []
-    for epoch in tqdm(range(num_epochs)):
+    for epoch in range(num_epochs):
         model, step_time = train_step_bert(model, train_dataloader, optimizer, scheduler, device, epoch)
         f1 = evaluate_step_bert(model, val_dataloader, device)
         f1_scores.append(f1)
@@ -201,7 +201,7 @@ def make_bert_report():
     report = {}
     report["step_execution_time"] = step_times
     report["avg_time"] = np.mean(step_times)
-    report["f1_scores"] = f1_scores
+    report["f1_scores"] = [f"{f1:.5f}" for f1 in f1_scores]
     report["training_time"] = train_time
 
 

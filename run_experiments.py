@@ -22,6 +22,8 @@ def argument_parser():
     parser.add_argument("-n", "--n_test_reviews", default=100, type=str, help="Number of imdb reviews for test")
     parser.add_argument("-c", "--console_input", type=bool, action=argparse.BooleanOptionalAction, help="Will the request be entered into the console? [True/False]")
     parser.add_argument("--regenerate_requests", default=False, action=argparse.BooleanOptionalAction, help="Whether the test data should be regenerated [True/False]")
+    parser.add_argument("--run_gzip", default=False, action=argparse.BooleanOptionalAction, help="Whether to run gzip-based model [True/False]")
+    parser.add_argument("--run_bert", default=False, action=argparse.BooleanOptionalAction, help="Whether to run BERT model[True/False]")
     parser.add_argument("--plots_path", default="charts/", type=str, help="Folder for plots")
     
     return parser.parse_args()
@@ -60,12 +62,17 @@ def main():
         print(f"{time:.2f} sec | predicted class: {pred}")
         return
     
-    gzip_report = make_gzip_report(args)
-    print("***********************************")
-    print(f"GZIP | avg time: {gzip_report['avg_time']:.2f} | f1: {gzip_report['f1_score']:.5f}")
-    print("***********************************")
-
-    bert_report, bert_model = make_bert_report()
+    if args.run_gzip:
+        gzip_report = make_gzip_report(args)
+        print("***********************************")
+        print(f"GZIP | avg time: {gzip_report['avg_time']:.2f} | f1: {gzip_report['f1_score']:.5f}")
+        print("***********************************")
+        
+    if args.run_bert:
+        bert_report, bert_model = make_bert_report()
+        print("***********************************")
+        print(f"BERT | avg time: {bert_report['avg_time']:.2f} | f1: {bert_report['f1_scores']}")
+        print("***********************************")
     
 
 
