@@ -4,20 +4,19 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import numpy as np
 import time
-
-IMDB_PATH = "data/IMDB.csv"
+import os
 
 
 def load_imdb_data(data_file):
     df = pd.read_csv(data_file)
-    df = df.iloc[100:]
+    df = df.iloc[int(os.environ["N_TEST_REVIEWS"]):]
     texts = df['review'].tolist()
     labels = [1 if sentiment == "positive" else 0 for sentiment in df['sentiment'].tolist()]
     return texts, labels
 
 
 def gzip_predict(request, k):
-    texts, labels = load_imdb_data(IMDB_PATH)
+    texts, labels = load_imdb_data(os.environ["IMDB_PATH"])
 
     x1 = request[0]
     distances_from_x1 = []
@@ -35,10 +34,7 @@ def gzip_predict(request, k):
     predict_class = max(set(top_k_class), key=top_k_class.count)
     end = time.time()
 
-    response = {"class": predict_class,
-                "time": end-start}
-
-    return response
+    return predict_class, end-start
 
 
 def bert_predict(request):

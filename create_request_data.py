@@ -2,10 +2,6 @@ import pandas as pd
 import argparse
 import os
 
-os.environ["POSITIVE_DIR"] = "request_data/pos_reviews"
-os.environ["NEGATIVE_DIR"] = "request_data/neg_reviews"
-os.environ["N_TEST_REVIEWS"] = 100
-
 
 def argument_parser():
     parser = argparse.ArgumentParser(
@@ -15,9 +11,8 @@ def argument_parser():
     return parser.parse_args()
 
 
-def main():
-    args = argument_parser()
-    df = pd.read_csv(args.imdb_file).iloc[:os.environ["N_TEST_REVIEWS"]]
+def generate_test_data():
+    df = pd.read_csv(os.environ["IMDB_PATH"]).iloc[:int(os.environ["N_TEST_REVIEWS"])]
 
     texts_pos = df[df["sentiment"] == "positive"]['review'].tolist()
     texts_neg = df[df["sentiment"] == "negative"]['review'].tolist()
@@ -37,4 +32,5 @@ def main():
 
 
 if __name__ =="__main__":
-    main()
+    args = argument_parser()
+    generate_test_data(args.imdb_file)
