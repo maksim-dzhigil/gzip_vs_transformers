@@ -1,1 +1,1 @@
-# gzip_vs_transformers
+# Repo with gzip and BERT comparison
